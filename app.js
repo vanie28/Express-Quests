@@ -20,6 +20,7 @@ const {validateUser} = require("./validator");
 
 app.get("/api/movies", movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
+// app.get("/api/movies/:color", movieHandlers.getMovieByColor);
 app.get("/api/users",movieHandlers.getUsers);
 app.get("/api/users/:id", movieHandlers.getUserById);
 app.post("/api/movies", validateMovie, movieHandlers.postMovie);

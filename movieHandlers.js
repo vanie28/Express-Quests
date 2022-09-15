@@ -1,8 +1,23 @@
 const database = require("./database");
 
 const getMovies = (req, res) => {
+  let sql = "select * from movies";
+  const sqlValues = [];
+
+  if (req.query.color != null) {
+    sql += " where color = ?";
+    sqlValues.push(req.query.color);
+
+    if (req.query.max_duration != null) {
+      sql += " and duration <= ?";
+      sqlValues.push(req.query.max_duration);
+    }
+  } else if (req.query.max_duration != null) {
+    sql += " where duration <= ?";
+    sqlValues.push(req.query.max_duration);
+  }
   database
-    .query("select * from movies")
+    .query(sql, sqlValues)
     .then(([movies]) => {
       res.json(movies);
     })
@@ -37,12 +52,53 @@ const getMovieById = (req, res) => {
   //   res.status(404).send("Not Found");
   // }
 };
+// const getMovieByColor = (req, res) => {
+//   let color = parseInt(req.query.color);
+//   sqlValues = [];
+//   sqlValues.push({field: color})
+
+//   database
+//   .query(`select * from movies where color = ?, [color]`)
+//   .then(([movies]) => {
+//     movies != null
+//     ? res.json(movies.color[0])
+//     : res.status(404).send("Color not found");
+//   })
+//   .catch((err) => {
+//     res.sendStatus(500);
+//   })
+// }
 
 const getUsers = (req, res) => {
+  const initialSql = "select * from users";
+  const where = [];
+
+  if (req.query.city != null) {
+    where.push({
+      column: "city",
+      value: req.query.city,
+      operator: "=",
+    });
+  }
+  if (req.query.language != null) {
+    where.push({
+      column: "language",
+      value: req.query.language,
+      operator: "<=",
+    });
+  }
+
   database
-    .query("select * from users")
+    .query(
+      where.reduce(
+        (sql, { column, operator }, index) =>
+          `${sql} ${index === 0 ? "where" : "and"} ${column} ${operator} ?`,
+        initialSql
+      ),
+      where.map(({ value }) => value)
+    )
     .then(([users]) => {
-      res.status(200).json(users);
+      res.json(users);
     })
     .catch((err) => {
       console.error(err);
@@ -174,14 +230,14 @@ const deleteMovie = (req, res) => {
     .query("DELETE FROM movies where id = ?", [id])
     .then(([result]) => {
       result.affectedRows === 0
-      ? res.status(404).json("Not Found")
-      : res.status(204);
+        ? res.status(404).json("Not Found")
+        : res.status(204);
     })
     .catch((err) => {
       // console.error(err);
       res.status(500).send("Error deleting the movie");
     });
-  };
+};
 
 const deleteUser = (req, res) => {
   const id = parseInt(req.params.id);
@@ -203,6 +259,7 @@ const deleteUser = (req, res) => {
 module.exports = {
   getMovies,
   getMovieById,
+  // getMovieByColor,
   postMovie,
   getUsers,
   getUserById,
