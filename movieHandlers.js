@@ -43,31 +43,7 @@ const getMovieById = (req, res) => {
       console.log(err);
       res.status(500).send("Error retrieving data from database");
     });
-
-  // const movie = movies.find((movie) => movie.id === id);
-
-  // if (movie != null) {
-  //   res.json(movie);
-  // } else {
-  //   res.status(404).send("Not Found");
-  // }
 };
-// const getMovieByColor = (req, res) => {
-//   let color = parseInt(req.query.color);
-//   sqlValues = [];
-//   sqlValues.push({field: color})
-
-//   database
-//   .query(`select * from movies where color = ?, [color]`)
-//   .then(([movies]) => {
-//     movies != null
-//     ? res.json(movies.color[0])
-//     : res.status(404).send("Color not found");
-//   })
-//   .catch((err) => {
-//     res.sendStatus(500);
-//   })
-// }
 
 const getUsers = (req, res) => {
   const initialSql = "select * from users";
@@ -123,13 +99,6 @@ const getUserById = (req, res) => {
       res.status(500).send("Error retrieving data from database");
     });
 
-  // const user = users.find((user) => user.id === id);
-
-  // if (user != null) {
-  //   res.json(user);
-  // } else {
-  //   res.status(404).send("Not Found");
-  // }
 };
 
 const postMovie = (req, res) => {
@@ -144,6 +113,7 @@ const postMovie = (req, res) => {
       [title, director, year, color, duration]
     )
     .then(([result]) => {
+      console.log("&&&&&&&", result)
       res.location(`/api/movies/${result.insertId}`).sendStatus(201);
       // wait for it
     })
@@ -154,15 +124,16 @@ const postMovie = (req, res) => {
 };
 
 const postUser = (req, res) => {
-  const { firstname, lastname, email, city, language } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   // console.log(req.body);
   // res.send("Post route is working 🎉");
 
   database
     .query(
-      "INSERT INTO users(firstname, lastname, email, city, language) VALUES (?, ?, ?, ?, ?)",
-      [firstname, lastname, email, city, language]
+      "INSERT INTO users(firstname, lastname, email, city, language, hashedPassword) VALUES (?, ?, ?, ?, ?, ?)",
+      [firstname, lastname, email, city, language, hashedPassword]
     )
     .then(([result]) => {
       res.location(`/api/users/${result.insertId}`).sendStatus(201);

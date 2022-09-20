@@ -14,19 +14,17 @@ const welcome = (req, res) => {
 app.get("/", welcome);
 
 const movieHandlers = require("./movieHandlers");
-// const validator = require("./validator");
-const {validateMovie} = require("./validator");
-const {validateUser} = require("./validator");
+const middlewares = require("./middlewares/validator");
+const { hashPassword } = require("./auth");
 
 app.get("/api/movies", movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
-// app.get("/api/movies/:color", movieHandlers.getMovieByColor);
 app.get("/api/users",movieHandlers.getUsers);
 app.get("/api/users/:id", movieHandlers.getUserById);
-app.post("/api/movies", validateMovie, movieHandlers.postMovie);
-app.post("/api/users", validateUser, movieHandlers.postUser);
-app.put("/api/movies/:id", validateMovie, movieHandlers.putMovie);
-app.put("/api/users/:id", validateUser, movieHandlers.putUser);
+app.post("/api/movies", middlewares.validateMovie, movieHandlers.postMovie);
+app.post("/api/users", middlewares.validateUser, hashPassword, movieHandlers.postUser);
+app.put("/api/movies/:id", middlewares.validateMovie, movieHandlers.putMovie);
+app.put("/api/users/:id", middlewares.validateUser, movieHandlers.putUser);
 app.delete("/api/movies/:id", movieHandlers.deleteMovie);
 app.delete("/api/users/:id", movieHandlers.deleteUser);
 
